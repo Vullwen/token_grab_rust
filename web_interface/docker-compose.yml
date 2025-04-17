@@ -1,0 +1,20 @@
+services:
+  web:
+    image: php:8.2-apache
+    container_name: token_web
+    restart: unless-stopped
+    volumes:
+      - ./public:/var/www/html
+      - ./data:/var/www/data
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.token-web.rule=Host(`rust.vullwen.com`)"
+      - "traefik.http.routers.token-web.entrypoints=websecure"
+      - "traefik.http.routers.token-web.tls=true"
+      - "traefik.http.routers.token-web.tls.certresolver=letsencrypt"
+
+networks:
+  traefik:
+    external: true
