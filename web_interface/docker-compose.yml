@@ -13,7 +13,7 @@ services:
       - "traefik.http.routers.token-web.rule=Host(`rust.vullwen.com`)"
       - "traefik.http.routers.token-web.entrypoints=websecure"
       - "traefik.http.routers.token-web.tls=true"
-      - "traefik.http.routers.token-web.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.token-web.tls.certresolver=myresolver"
 
 networks:
   traefik:

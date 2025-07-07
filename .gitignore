@@ -1,0 +1,11 @@
+# Dossier de compilation et exécutables intermédiaires
+/target/
+/debug/
+
+# Fichier Cargo.lock :
+# - Laisser pour les applications (binaires), enlever si c’est une bibliothèque
+Cargo.lock
+
+# Sauvegardes rustfmt
+**/*.rs.bk
+

