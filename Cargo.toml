@@ -18,3 +18,5 @@ rustls = "0.20"
 warp = "0.3"
 sysinfo = "0.26"
 winapi = { version = "0.3", features = ["processthreadsapi", "handleapi", "memoryapi"] }
+rusqlite = "0.31"
+dirs = "5"
