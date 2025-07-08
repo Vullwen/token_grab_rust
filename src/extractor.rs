@@ -19,7 +19,7 @@ pub struct ExtractedData {
 }
 
 #[derive(Serialize, Deserialize, Default)]
-struct BrowserCookie {
+pub struct BrowserCookie {
     domain: String,
     name: String,
     value: String,
@@ -28,16 +28,15 @@ struct BrowserCookie {
 }
 
 #[derive(Serialize, Deserialize, Default)]
-struct SystemInfo {
-  #[serde(default)]
-  user_agent: Option<String>,
-  os: String,
-  cpu: String,
-  #[serde(default)]
-  gpu: Option<String>,
-  ram: u64,
+pub struct SystemInfo {
+    #[serde(default)]
+    user_agent: Option<String>,
+    os: String,
+    cpu: String,
+    #[serde(default)]
+    gpu: Option<String>,
+    ram: u64,
 }
-
 
 impl Extractor {
     pub fn new() -> Self {
