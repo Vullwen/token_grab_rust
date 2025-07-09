@@ -3,6 +3,7 @@ use aes::Aes256;
 use std::thread;
 use std::time::Duration;
 use base64::{engine::general_purpose, Engine as _};
+use rand::Rng;
 
 pub fn obfuscate_string(input: &str) -> String {
     general_purpose::STANDARD.encode(input.as_bytes())
@@ -26,13 +27,14 @@ pub fn detect_virtualization() -> bool {
 }
 
 pub fn encrypt_with_key(data: &[u8], key: &[u8]) -> Vec<u8> {
-    // Placeholder
-    Vec::new()
+    data.iter()
+        .enumerate()
+        .map(|(i, &b)| b ^ key[i % key.len()])
+        .collect()
 }
 
 pub fn decrypt_with_key(data: &[u8], key: &[u8]) -> Vec<u8> {
-    // Placeholder
-    Vec::new()
+    encrypt_with_key(data, key)
 }
 
 pub fn apply_anti_analysis_delay() {
