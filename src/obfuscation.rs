@@ -16,8 +16,7 @@ pub fn deobfuscate_string(input: &str) -> String {
 }
 
 pub fn detect_debugging() -> bool {
-    // Placeholder
-    false
+    std::env::vars().any(|(k, _)| k.to_lowercase().contains("debug"))
 }
 
 pub fn detect_virtualization() -> bool {
