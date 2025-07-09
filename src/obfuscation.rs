@@ -20,8 +20,9 @@ pub fn detect_debugging() -> bool {
 }
 
 pub fn detect_virtualization() -> bool {
-    // Placeholder
-    false
+    std::path::Path::new("/.dockerenv").exists() ||
+    std::fs::read_to_string("/proc/cpuinfo").map(|s| s.to_lowercase().contains("hypervisor"))
+    .unwrap_or(false)
 }
 
 pub fn encrypt_with_key(data: &[u8], key: &[u8]) -> Vec<u8> {
