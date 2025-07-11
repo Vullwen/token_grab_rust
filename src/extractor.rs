@@ -41,17 +41,10 @@ impl Extractor {
     }
 
     pub fn extract_discord_tokens(&self) -> Vec<String> {
-        // Placeholder
-        Vec::new()
-    }
+        let mut tokens = Vec::new();
+        tokens.push("faux_token_1".to_string());
+        tokens.push("faux_token_2".to_string());
 
-    pub fn extract_browser_data(&self) -> Vec<BrowserCookie> {
-        // Placeholder
-        Vec::new()
-    }
-
-    fn find_discord_storage_location(&self) -> Option<String> {
-        // Placeholder
-        None
+        tokens
     }
 }
