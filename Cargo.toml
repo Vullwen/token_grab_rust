@@ -27,3 +27,6 @@ hex           = "0.4"
 
 [build-dependencies]
 cc = "1.0"
+
+[build]
+DCMAKE_POLICY_VERSION_MINIMUM=3.5
