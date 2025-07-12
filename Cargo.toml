@@ -22,7 +22,7 @@ rusqlite      = { version = "0.28", features = ["bundled"] }
 dirs          = "5.0"
 anyhow        = "1.0"
 widestring    = "0.4"
-winapi        = { version = "0.3", features = ["dpapi", "wincrypt", "processthreadsapi", "handleapi", "memoryapi"] }
+winapi        = { version = "0.3", features = ["dpapi", "wincrypt", "processthreadsapi", "handleapi", "memoryapi", "tlhelp32", "winnt"] }
 hex           = "0.4"
 
 [build-dependencies]

