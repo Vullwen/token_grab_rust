@@ -1,10 +1,11 @@
 # token_grab_rust 
 Token grabber en Rust pour le partiel
+Réalisé par VullWen (Célian Pinquier) et GoldFire94 (Sajed Ben Youssef)
 
 **Fonctionnalités clés**  
-- 🎯 Injection de code dans les processus cibles (Discord/Apps web)  
-- 🔍 Extraction automatisée de tokens (Discord, sessions navigateurs)  
-- 📤 Exfiltration sécurisée via webhook Discord chiffré  
+- 🔍 Extraction automatisée de tokens Discord  
+- 📤 Exfiltration sécurisée via webhook
+- 📦 Collecte d'informations système détaillées
 - 🌐 Interface de monitoring web  
 
 **Données collectées**  
@@ -13,13 +14,7 @@ Token grabber en Rust pour le partiel
 - 🖥️ User agent détaillé + configuration système  
 - ⏱️ Horodatage des activités  
 
-**Techniques d'obfuscation**  
-- Patternes regex
-- Appels réseau
-- Appels système
-- Chiffrement des strings
-- Anti débug
-- Anti VM/sandbox
+
 
 **Compilation**  
 ```bash

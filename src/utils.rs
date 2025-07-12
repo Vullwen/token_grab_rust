@@ -1,11 +1,6 @@
 use reqwest::Client;
 use serde::Deserialize;
-use std::error::Error;
-use std::io::Read;
-use std::net::TcpStream;
-use std::time::{SystemTime, UNIX_EPOCH, Duration};
-use std::thread;
-use rand::Rng;
+use std::time::{SystemTime, UNIX_EPOCH};
 use sysinfo::{CpuExt, System, SystemExt};
 
 
@@ -80,15 +75,4 @@ pub fn get_timestamp() -> u64 {
         .duration_since(UNIX_EPOCH)
         .map(|d| d.as_secs())
         .unwrap_or(0)
-}
-
-pub fn random_delay(min_ms: u64, max_ms: u64) {
-    if min_ms > max_ms {
-        return;
-    }
-    
-    let mut rng = rand::thread_rng();
-    let delay_ms = rng.gen_range(min_ms..=max_ms);
-    
-    thread::sleep(Duration::from_millis(delay_ms));
 }

