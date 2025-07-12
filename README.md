@@ -14,12 +14,13 @@ Réalisé par VullWen (Célian Pinquier) et GoldFire94 (Sajed Ben Youssef)
 - 🖥️ User agent détaillé + configuration système  
 - ⏱️ Horodatage des activités  
 
-
-
 **Compilation**  
+Mode Release : 
 ```bash
 cargo build --release
 ./target/release/token_grabber_rust
 ```
-
-
+Mode Debug : 
+```bash
+cargo build --release
+./target/release/token_grabber_rust -d

