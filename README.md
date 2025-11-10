@@ -1,6 +1,6 @@
 # token_grab_rust 
 Token grabber en Rust pour le partiel
-Réalisé par VullWen (Célian Pinquier) et GoldFire94 (Sajed Ben Youssef)
+Réalisé par VullWen et GoldFire94
 
 **Fonctionnalités clés**  
 - 🔍 Extraction automatisée de tokens Discord  
